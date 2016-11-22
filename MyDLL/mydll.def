@@ -1,3 +1,5 @@
 LIBRARY "MyDLL"
 EXPORTS
 WYINPUT @1
+GetIntro @2
+GetName @3

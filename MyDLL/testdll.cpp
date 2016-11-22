@@ -2,6 +2,8 @@
 #include "testdll.h"
 #include <iostream>
 using namespace std;
+char Name[64];
+char Introduction[256];
 struct Step
 {
 	int X0;
@@ -9,23 +11,14 @@ struct Step
 	int X1;
 	int Y1;
 };
-struct Info
-{
-	int x0;
-	double a1;
-	double a2;
-};
-
-Step __stdcall ADD(int plus1, int plus2, Info* infop)
-{
-	Step result;
-	result.X0 = 2;
-	result.Y0 = 3;
-	result.X1 = plus1 + plus2 + infop->x0;
-	result.Y1 = 5;
-	return result;
+const char* __stdcall GetIntro() {
+	strcpy_s(Introduction, "吴越写的测试程序");
+	return Introduction;
 }
-
+const char* __stdcall GetName() {
+	strcpy_s(Name, "中文名称");
+	return Name;
+}
 Step __stdcall WYINPUT() {
 	Step result;
 	result.X0 = 2;
