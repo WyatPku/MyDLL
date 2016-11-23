@@ -15,18 +15,18 @@ int gridInfo[7][7] = { 0 }; // 先x后y，记录棋盘状态
 
 void InitName() {
 	//在这里设置你的算法名称~用的人看得到哦
-	strcpy_s(Name, "中英文都可以的名称");
+	strcpy_s(Name, "我的单步最优算法");
 }
 void InitIntroduction() {
 	//简要介绍一下你的AI吧！包括版本号啊战绩啊什么的~懒的话不写也可以的
-	strcpy_s(Introduction, "简要地介绍一下你的算法，不要超过256Byte的字符都可以哦~");
+	strcpy_s(Introduction, "这是我得第一个算法！呜呼呼");
 }
 
 // 从x0, y0提子，在x1, y1处落子，并模拟落子。
 void ProcStep(int x0, int y0, int x1, int y1, int color)
 {
 	//请在这里自行完成模拟落子、改变棋盘状态的函数
-	Wy_ProcStep(x0, y0, x1, y1, color);
+	Wy_ProcStep(x0, y0, x1, y1, color); //这是我写的，可以更改
 }
 Step GetNextStep(struct Step requests[], struct Step responses[], int StepCount) {
 	// 初始化棋盘
@@ -47,7 +47,7 @@ Step GetNextStep(struct Step requests[], struct Step responses[], int StepCount)
 				requests[i].Y1, -currBotColor); // 模拟对方落子
 		if (responses[i].X0 >= 0)
 			ProcStep(responses[i].X0, responses[i].Y0, responses[i].X1,
-				responses[i].Y1, currBotColor); // 模拟己方落子%
+				responses[i].Y1, currBotColor); // 模拟己方落子
 	}
 	//下面这段可以向控制台输出棋盘状态
 	/*for (int j = 0; j < 7; j++) {
@@ -70,6 +70,7 @@ Step GetNextStep(struct Step requests[], struct Step responses[], int StepCount)
 	resultX = re.X1;
 	resultY = re.Y1;
 	//以上部分是demo，可以删掉重写
+
 
 
 	// 决策结束，输出结果
@@ -100,6 +101,7 @@ void Wy_ProcStep(int x0, int y0, int x1, int y1, int color)
 }
 Step Wy_NextStep()
 {
+	//这个是最简单的单步同化最多解之一，作为DEMO使用
 	vector<Step> DiffCanGo; //找到所有的结果不相同的行走方式
 							//先找到走临近的。这时候应该对所有空位寻找，因为是复制，怎么走都是一样的
 	for (int i = 0; i<7; i++)
