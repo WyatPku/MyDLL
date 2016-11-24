@@ -29,6 +29,12 @@ void ProcStep(int x0, int y0, int x1, int y1, int color)
 	Wy_ProcStep(x0, y0, x1, y1, color); //这是我写的，可以更改
 }
 Step GetNextStep(struct Step requests[], struct Step responses[], int StepCount) {
+	//重置棋盘
+	for (int i = 0; i < 7; i++) {
+		for (int j = 0; j < 7; j++) {
+			gridInfo[i][j] = 0;
+		}
+	}
 	// 初始化棋盘
 	gridInfo[0][0] = gridInfo[6][6] = 1;  //|黑|白|
 	gridInfo[6][0] = gridInfo[0][6] = -1; //|白|黑|
@@ -40,8 +46,8 @@ Step GetNextStep(struct Step requests[], struct Step responses[], int StepCount)
 	cout << "Color:" << currBotColor << endl;
 	for (int i = 0; i < turnID; i++)
 	{
-		//cout << "requests[" << i <<"](" << requests[i].X0 << "," << 
-		//	requests[i].Y0 << ")(" << requests[i].X1 << "," << requests[i].Y1  << ")" << endl;
+		cout << "requests[" << i <<"](" << requests[i].X0 << "," << 
+			requests[i].Y0 << ")(" << requests[i].X1 << "," << requests[i].Y1  << ")" << endl;
 		if (requests[i].X0 >= 0)
 			ProcStep(requests[i].X0, requests[i].Y0, requests[i].X1,
 				requests[i].Y1, -currBotColor); // 模拟对方落子
@@ -50,14 +56,14 @@ Step GetNextStep(struct Step requests[], struct Step responses[], int StepCount)
 				responses[i].Y1, currBotColor); // 模拟己方落子
 	}
 	//下面这段可以向控制台输出棋盘状态
-	/*for (int j = 0; j < 7; j++) {
+	for (int j = 0; j < 7; j++) {
 		for (int i = 0; i < 7; i++) {
 			if (gridInfo[i][j] == 0) cout << '0';
 			else if (gridInfo[i][j] == 1) cout << '#';
 			else if (gridInfo[i][j] == -1) cout << '.';
 		}
 		cout << endl;
-	}*/
+	}
 	// 找出合法落子点并做出决策
 	int startX, startY, resultX, resultY;
 	//进行决策，得出落子坐标，并赋值给上述变量
