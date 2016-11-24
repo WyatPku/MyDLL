@@ -2,11 +2,11 @@
 
 # MyDLL
 同化棋的调试工具，C++实时更改生成DLL，图形界面
-视频链接：http://m.youku.com/video/id_XMTgzMTMyNzEwOA==.html?refer=pc-sns-1
+视频链接：http://v.youku.com/v_show/id_XMTgzMTMyNzEwOA==.html
 
-批量测试演示视频：http://m.youku.com/video/id_XMTgzMzgwMzM1Mg==.html?refer=pc-sns-1
+批量测试演示视频：http://v.youku.com/v_show/id_XMTgzMzgwMzM1Mg==.html
 
-DLL动态库批量测试：http://m.youku.com/video/id_XMTgzMzgwNDQ1Mg==.html?refer=pc-sns-1
+DLL动态库批量测试：http://v.youku.com/v_show/id_XMTgzMzgwNDQ1Mg==.html
 
 功能如题，这是一个用来开发同化棋算法的应用。
 这个项目包含两个程序，一个是图形界面运行的主程序，源码没有放到这里，用的语言是C#，不多说，直接用就可以。
