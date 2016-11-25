@@ -184,7 +184,13 @@ void ProcStep(int x0, int y0, int x1, int y1, int color) //TODO:在这里加上你的代
 		}
 	}
 }
-Step NextStep() //TODO:在这里加上你的代码，可以保证此文件直接粘贴到Botzone上可以使用
+/*
+*TODO:在这里加上你的代码，可以保证此文件直接粘贴到Botzone上可以使用
+*此函数需要返回一个Step对象，定义见文件头部
+*注意调试的时候可以使用cout，但是最好加上 #ifdef dllDebug 标识，这样可以保证在Botzone上直接使用
+*/
+Step NextStep() //
+//
 {
 	//这个是最简单的单步同化最多解之一，作为DEMO使用
 	vector<Step> DiffCanGo; //找到所有的结果不相同的行走方式
