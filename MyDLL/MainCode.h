@@ -11,3 +11,5 @@ extern struct Step
 	int Y1; //要移动到的位置Y坐标
 };
 extern Step GetNextStep(struct Step requests[], struct Step responses[], int StepCount);
+#define AtaxxDLLDevelop
+#define dllDebug

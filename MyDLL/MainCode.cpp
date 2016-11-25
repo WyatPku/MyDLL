@@ -3,16 +3,26 @@
 #include <cmath>
 #include <vector>
 #include <iostream>
+#include <string>
+#ifndef AtaxxDLLDevelop
+#include <cstdlib>
+#include <ctime>
+#include "jsoncpp/json.h" // C++编译时默认包含此库
+struct Step
+{
+	int X0; //要移动的棋子的X坐标
+	int Y0; //要移动的棋子的Y坐标
+	int X1; //要移动到的位置X坐标
+	int Y1; //要移动到的位置Y坐标
+};
+#endif // !AtaxxDLLDevelop
 using namespace std;
 //这里是我给的demo，可以不去调用
-void Wy_ProcStep(int x0, int y0, int x1, int y1, int color);
-Step Wy_NextStep();
-
+void ProcStep(int x0, int y0, int x1, int y1, int color);
+Step NextStep();
+#ifdef AtaxxDLLDevelop
 char Name[64];
 char Introduction[256];
-int currBotColor; // 我所执子颜色（1为黑，-1为白，棋盘状态亦同）
-int gridInfo[7][7] = { 0 }; // 先x后y，记录棋盘状态
-
 void InitName() {
 	//在这里设置你的算法名称~用的人看得到哦
 	strcpy_s(Name, "我的单步最优算法");
@@ -21,13 +31,13 @@ void InitIntroduction() {
 	//简要介绍一下你的AI吧！包括版本号啊战绩啊什么的~懒的话不写也可以的
 	strcpy_s(Introduction, "这是我得第一个算法！呜呼呼");
 }
+#endif // AtaxxDLLDevelop
 
-// 从x0, y0提子，在x1, y1处落子，并模拟落子。
-void ProcStep(int x0, int y0, int x1, int y1, int color)
-{
-	//请在这里自行完成模拟落子、改变棋盘状态的函数
-	Wy_ProcStep(x0, y0, x1, y1, color); //这是我写的，可以更改
-}
+
+int currBotColor; // 我所执子颜色（1为黑，-1为白，棋盘状态亦同）
+int gridInfo[7][7] = { 0 }; // 先x后y，记录棋盘状态
+
+#ifdef AtaxxDLLDevelop
 Step GetNextStep(struct Step requests[], struct Step responses[], int StepCount) {
 	//重置棋盘
 	for (int i = 0; i < 7; i++) {
@@ -38,16 +48,16 @@ Step GetNextStep(struct Step requests[], struct Step responses[], int StepCount)
 	// 初始化棋盘
 	gridInfo[0][0] = gridInfo[6][6] = 1;  //|黑|白|
 	gridInfo[6][0] = gridInfo[0][6] = -1; //|白|黑|
-	//原本这里是读入JSON，这里不需要读入，已知有StepCount个步骤了
-	// 分析自己收到的输入和自己过往的输出，并恢复状态
+										  //原本这里是读入JSON，这里不需要读入，已知有StepCount个步骤了
+										  // 分析自己收到的输入和自己过往的输出，并恢复状态
 	int turnID = StepCount;
-	cout << "Count:" << StepCount << endl;
+	//cout << "Count:" << StepCount << endl;
 	currBotColor = requests[0].X0 < 0 ? 1 : -1; // 第一回合收到坐标是-1, -1，说明我是黑方
-	cout << "Color:" << currBotColor << endl;
+	//cout << "Color:" << currBotColor << endl;
 	for (int i = 0; i < turnID; i++)
 	{
-		cout << "requests[" << i <<"](" << requests[i].X0 << "," << 
-			requests[i].Y0 << ")(" << requests[i].X1 << "," << requests[i].Y1  << ")" << endl;
+		//cout << "requests[" << i << "](" << requests[i].X0 << "," <<
+		//	requests[i].Y0 << ")(" << requests[i].X1 << "," << requests[i].Y1 << ")" << endl;
 		if (requests[i].X0 >= 0)
 			ProcStep(requests[i].X0, requests[i].Y0, requests[i].X1,
 				requests[i].Y1, -currBotColor); // 模拟对方落子
@@ -56,28 +66,26 @@ Step GetNextStep(struct Step requests[], struct Step responses[], int StepCount)
 				responses[i].Y1, currBotColor); // 模拟己方落子
 	}
 	//下面这段可以向控制台输出棋盘状态
-	for (int j = 0; j < 7; j++) {
+	/*for (int j = 0; j < 7; j++) {
 		for (int i = 0; i < 7; i++) {
 			if (gridInfo[i][j] == 0) cout << '0';
 			else if (gridInfo[i][j] == 1) cout << '#';
 			else if (gridInfo[i][j] == -1) cout << '.';
 		}
 		cout << endl;
-	}
+	}*/
 	// 找出合法落子点并做出决策
 	int startX, startY, resultX, resultY;
 	//进行决策，得出落子坐标，并赋值给上述变量
 	//在这里添加你的代码
 
 	//我的demo，从这里到下一个注释可以DIY
-	Step re = Wy_NextStep();
+	Step re = NextStep();
 	startX = re.X0;
 	startY = re.Y0;
 	resultX = re.X1;
 	resultY = re.Y1;
 	//以上部分是demo，可以删掉重写
-
-
 
 	// 决策结束，输出结果
 	Step goStep;
@@ -85,12 +93,83 @@ Step GetNextStep(struct Step requests[], struct Step responses[], int StepCount)
 	goStep.Y0 = startY;
 	goStep.X1 = resultX;
 	goStep.Y1 = resultY;
-	cout << "Go" << startX << " " << startY << " " << resultX << " " << resultY << endl;
+	//cout << "Go" << startX << " " << startY << " " << resultX << " " << resultY << endl;
 	return goStep;
 }
+#endif // AtaxxDLLDevelop
 
-void Wy_ProcStep(int x0, int y0, int x1, int y1, int color)
+#ifndef AtaxxDLLDevelop
+int main()
 {
+	int x0, y0, x1, y1;
+
+	// 初始化棋盘
+	gridInfo[0][0] = gridInfo[6][6] = 1;  //|黑|白|
+	gridInfo[6][0] = gridInfo[0][6] = -1; //|白|黑|
+
+										  // 读入JSON
+	string str;
+	getline(cin, str);
+	Json::Reader reader;
+	Json::Value input;
+	reader.parse(str, input);
+
+	// 分析自己收到的输入和自己过往的输出，并恢复状态
+	int turnID = input["responses"].size();
+	currBotColor = input["requests"][(Json::Value::UInt) 0]["x0"].asInt() < 0 ? 1 : -1; // 第一回合收到坐标是-1, -1，说明我是黑方
+	for (int i = 0; i < turnID; i++)
+	{
+		// 根据这些输入输出逐渐恢复状态到当前回合
+		x0 = input["requests"][i]["x0"].asInt();
+		y0 = input["requests"][i]["y0"].asInt();
+		x1 = input["requests"][i]["x1"].asInt();
+		y1 = input["requests"][i]["y1"].asInt();
+		if (x0 >= 0)
+			ProcStep(x0, y0, x1, y1, -currBotColor); // 模拟对方落子
+		x0 = input["responses"][i]["x0"].asInt();
+		y0 = input["responses"][i]["y0"].asInt();
+		x1 = input["responses"][i]["x1"].asInt();
+		y1 = input["responses"][i]["y1"].asInt();
+		if (x0 >= 0)
+			ProcStep(x0, y0, x1, y1, currBotColor); // 模拟己方落子
+	}
+
+	// 看看自己本回合输入
+	x0 = input["requests"][turnID]["x0"].asInt();
+	y0 = input["requests"][turnID]["y0"].asInt();
+	x1 = input["requests"][turnID]["x1"].asInt();
+	y1 = input["requests"][turnID]["y1"].asInt();
+	if (x0 >= 0)
+		ProcStep(x0, y0, x1, y1, -currBotColor); // 模拟对方落子
+
+												 // 找出合法落子点并做出决策
+
+	int startX, startY, resultX, resultY;
+
+	//进行决策，得出落子坐标，并赋值给上述变量
+	Step re = NextStep();
+	startX = re.X0;
+	startY = re.Y0;
+	resultX = re.X1;
+	resultY = re.Y1;
+
+	// 决策结束，输出结果
+
+	Json::Value ret;
+	ret["response"]["x0"] = startX;
+	ret["response"]["y0"] = startY;
+	ret["response"]["x1"] = resultX;
+	ret["response"]["y1"] = resultY;
+	Json::FastWriter writer;
+	cout << writer.write(ret) << endl;
+	return 0;
+}
+#endif // !AtaxxDLLDevelop
+
+// 从x0, y0提子，在x1, y1处落子，并模拟落子。
+void ProcStep(int x0, int y0, int x1, int y1, int color) //TODO:在这里加上你的代码，可以保证此文件直接粘贴到Botzone上可以使用
+{
+	//请在这里自行完成模拟落子、改变棋盘状态的函数
 	if (abs(x0 - x1) > 1 || abs(y0 - y1) > 1) {
 		//即跳过一个棋子，原来位置棋子消失
 		gridInfo[x0][y0] = 0;
@@ -105,7 +184,7 @@ void Wy_ProcStep(int x0, int y0, int x1, int y1, int color)
 		}
 	}
 }
-Step Wy_NextStep()
+Step NextStep() //TODO:在这里加上你的代码，可以保证此文件直接粘贴到Botzone上可以使用
 {
 	//这个是最简单的单步同化最多解之一，作为DEMO使用
 	vector<Step> DiffCanGo; //找到所有的结果不相同的行走方式
@@ -168,12 +247,16 @@ Step Wy_NextStep()
 			}
 		}
 	}
+	#ifdef dllDebug //在调试输出的时候最好带上这个，这样粘贴到Botzone上就不用删除了，自动就会没有
+	//不然Botzone上会显示“输出不是JSON”，需要你手动删除所有cout调试输出
 	cout << "Size:" << DiffCanGo.size() << endl;
 	for (int i = 0; i < DiffCanGo.size(); i++) {
 		cout << "Cango:" << DiffCanGo.at(i).X0 << ' ' <<
 			DiffCanGo.at(i).Y0 << ' ' << DiffCanGo.at(i).X1 << ' ' <<
 			DiffCanGo.at(i).Y1 << endl;
 	}
+	#endif // dllDebug
+
 	int Change = -1;
 	int TargetIndex = 0;
 	for (int index=0; index<DiffCanGo.size(); index++)
