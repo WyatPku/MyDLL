@@ -4,9 +4,9 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include <ctime>
 #ifndef AtaxxDLLDevelop
 #include <cstdlib>
-#include <ctime>
 #include "jsoncpp/json.h" // C++编译时默认包含此库
 struct Step
 {
@@ -189,12 +189,18 @@ void ProcStep(int x0, int y0, int x1, int y1, int color) //TODO:在这里加上你的代
 *此函数需要返回一个Step对象，定义见文件头部
 *注意调试的时候可以使用cout，但是最好加上 #ifdef dllDebug 标识，这样可以保证在Botzone上直接使用
 */
+int gridInfo2[7][7];
+void CopyTo2();
+void ProcStep2(int x0, int y0, int x1, int y1, int color);
+int GetMost(int color);
+int GetRandomNum(int x);
 Step NextStep() //
 //
 {
 	//这个是最简单的单步同化最多解之一，作为DEMO使用
 	vector<Step> DiffCanGo; //找到所有的结果不相同的行走方式
 							//先找到走临近的。这时候应该对所有空位寻找，因为是复制，怎么走都是一样的
+	srand((int)time(0)); //设置随机数种子
 	for (int i = 0; i<7; i++)
 	{
 		for (int j = 0; j<7; j++)
@@ -265,51 +271,186 @@ Step NextStep() //
 
 	int Change = -1;
 	int TargetIndex = 0;
+	int Best = -60;
 	for (int index=0; index<DiffCanGo.size(); index++)
 	{
+		int Sum;
 		if (abs(DiffCanGo.at(index).X0 - DiffCanGo.at(index).X1) == 2 ||
 			abs(DiffCanGo.at(index).Y0 - DiffCanGo.at(index).Y1) == 2)
 		{
 			//是两步
-			int Sum = 0;
-			for (int i = -1; i<2; i++)
-			{
-				for (int j = -1; j<2; j++)
-				{
-					if (!(DiffCanGo.at(index).X1 + i<0 || DiffCanGo.at(index).X1 + i>6 ||
-						DiffCanGo.at(index).Y1 + j<0 || DiffCanGo.at(index).Y1 + j>6)) {
-						if (gridInfo[DiffCanGo.at(index).X1 + i][DiffCanGo.at(index).Y1 + j] ==
-							-currBotColor) Sum++;
-					}
-				}
-			}
-			if (Sum > Change)
-			{
-				TargetIndex = index;
-				Change = Sum;
-			}
+			Sum = 0;
 		}
 		else
 		{
 			//走一步
-			int Sum = 1;
-			for (int i = -1; i < 2; i++)
+			Sum = 1;
+		}
+		for (int i = -1; i < 2; i++)
+		{
+			for (int j = -1; j < 2; j++)
 			{
-				for (int j = -1; j < 2; j++)
+				if (!(DiffCanGo.at(index).X1 + i<0 || DiffCanGo.at(index).X1 + i>6 ||
+					DiffCanGo.at(index).Y1 + j<0 || DiffCanGo.at(index).Y1 + j>6)) {
+					if (gridInfo[DiffCanGo.at(index).X1 + i][DiffCanGo.at(index).Y1 + j] ==
+						-currBotColor) Sum++;
+				}
+			}
+		}
+		CopyTo2();
+		ProcStep2(DiffCanGo.at(index).X0, DiffCanGo.at(index).Y0, DiffCanGo.at(index).X1,
+			DiffCanGo.at(index).Y1, -currBotColor);
+		int reverSum = GetMost(-currBotColor);
+#ifdef dllDebug
+		cout << "reverSum=" << reverSum << endl;
+#endif // dllDebug
+
+		if (/*Sum > Change*/ Sum - reverSum > Best)
+		{
+			TargetIndex = index;
+			Change = Sum;
+			Best = Sum - reverSum;
+		}
+		else if (Sum - reverSum == Best) {
+			if (GetRandomNum(100) > 80) {
+				TargetIndex = index;
+				Change = Sum;
+				Best = Sum - reverSum;
+			}
+		}
+		
+	}
+#ifdef dllDebug
+	cout << "Best:" << Best << endl;
+#endif // dllDebug
+
+	return DiffCanGo.at(TargetIndex);
+}
+void CopyTo2() 
+{
+	for (int i = 0; i < 7; i++) {
+		for (int j = 0; j < 7; j++) {
+			gridInfo2[i][j] = gridInfo[i][j];
+		}
+	}
+}
+int GetMost(int color)
+{
+	int Most = -1;
+	//先找到走临近的。这时候应该对所有空位寻找，因为是复制，怎么走都是一样的
+	for (int i = 0; i<7; i++)
+	{
+		for (int j = 0; j<7; j++)
+		{
+			if (gridInfo2[i][j] == 0)
+			{
+				//是空的
+				for (int k = -1; k<2; k++)
 				{
-					if (!(DiffCanGo.at(index).X1 + i<0 || DiffCanGo.at(index).X1 + i>6 ||
-						DiffCanGo.at(index).Y1 + j<0 || DiffCanGo.at(index).Y1 + j>6)) {
-						if (gridInfo[DiffCanGo.at(index).X1 + i][DiffCanGo.at(index).Y1 + j] ==
-							-currBotColor) Sum++;
+					for (int l = -1; l<2; l++)
+					{
+						if (i + k < 0 || i + k > 6 || j + l < 0 || j + l > 6) continue;
+						if (gridInfo2[i + k][j + l] == color)
+						{
+							Step Go;
+							Go.X0 = i + k;
+							Go.Y0 = j + l;
+							Go.X1 = i;
+							Go.Y1 = j;
+							//找同化个数
+							//走一步
+							int Sum = 1;
+							for (int i = -1; i < 2; i++)
+							{
+								for (int j = -1; j < 2; j++)
+								{
+									if (!(Go.X1 + i<0 || Go.X1 + i>6 ||
+										Go.Y1 + j<0 || Go.Y1 + j>6)) {
+										if (gridInfo2[Go.X1 + i][Go.Y1 + j] ==
+											-color) Sum++;
+									}
+								}
+							}
+							if (Sum > Most)
+							{
+								Most = Sum;
+							}
+							//结束通话
+							//找到可以走的了，要下一步就退出，不然就是重复的
+							k = 3;
+							l = 3;
+						}
 					}
 				}
 			}
-			if (Sum > Change)
+		}
+	}
+	//后找走隔一个的，寻找跟自己颜色匹配的，因为是剪切，肯定寻找的方法也不一样
+	for (int i = 0; i<7; i++)
+	{
+		for (int j = 0; j<7; j++)
+		{
+			if (gridInfo[i][j] == color)
 			{
-				TargetIndex = index;
-				Change = Sum;
+				//是本色棋
+				for (int k = -2; k < 3; k++)
+				{
+					for (int l = -2; l < 3; l++)
+					{
+						if (i + k < 0 || i + k > 6 || j + l < 0 || j + l > 6) continue;
+						//要至少有一个距离是2，才是外围一圈
+						if (!(abs(k) == 2 || abs(l) == 2)) continue;
+						if (gridInfo[i + k][j + l] == 0)
+						{
+							Step Go;
+							Go.X0 = i;
+							Go.Y0 = j;
+							Go.X1 = i + k;
+							Go.Y1 = j + l;
+							//找同化个数
+							//是两步
+							int Sum = 0;
+							for (int i = -1; i<2; i++)
+							{
+								for (int j = -1; j<2; j++)
+								{
+									if (!(Go.X1 + i<0 || Go.X1 + i>6 ||
+										Go.Y1 + j<0 || Go.Y1 + j>6)) {
+										if (gridInfo[Go.X1 + i][Go.Y1 + j] ==
+											-color) Sum++;
+									}
+								}
+							}
+							if (Sum > Most)
+							{
+								Most = Sum;
+							}
+						}
+					}
+				}
 			}
 		}
 	}
-	return DiffCanGo.at(TargetIndex);
+	return Most;
+}
+void ProcStep2(int x0, int y0, int x1, int y1, int color) //TODO:在这里加上你的代码，可以保证此文件直接粘贴到Botzone上可以使用
+{
+	//请在这里自行完成模拟落子、改变棋盘状态的函数
+	if (abs(x0 - x1) > 1 || abs(y0 - y1) > 1) {
+		//即跳过一个棋子，原来位置棋子消失
+		gridInfo2[x0][y0] = 0;
+	}
+	gridInfo2[x1][y1] = color;
+	for (int i = -1; i < 2; i++) {
+		for (int j = -1; j < 2; j++) {
+			if (x1 + i < 0 || x1 + i > 6 || y1 + j < 0 || y1 + j > 6) continue;
+			if (gridInfo2[x1 + i][y1 + j] != 0) {
+				gridInfo2[x1 + i][y1 + j] = color;
+			}
+		}
+	}
+}
+int GetRandomNum(int x)
+{
+	return rand() % x;
 }
